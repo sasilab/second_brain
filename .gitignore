@@ -1,0 +1,84 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Logs / runtime ---
+*.log
+
+# --- Claude Code (per-project state) ---
+.claude/
+
+# --- Local chat-export uploads sitting at project root ---
+# (the import endpoints work directly with the file in place — no need to commit)
+/*.zip
+/conversations.json
+
+# ===========================================================
+# Vault
+#
+# Whitelist approach: ignore EVERYTHING under vault/ by default,
+# then explicitly allow the folder structure (.gitkeep files) and
+# the Templates/ contents. This guarantees that real notes and
+# attachments never leak into git.
+# ===========================================================
+
+vault/**
+
+# Allow the structural folders + their .gitkeep markers
+!vault/00_Inbox/
+!vault/00_Inbox/.gitkeep
+!vault/01_Projects/
+!vault/01_Projects/.gitkeep
+!vault/02_Areas/
+!vault/02_Areas/.gitkeep
+!vault/03_Resources/
+!vault/03_Resources/.gitkeep
+!vault/04_Archive/
+!vault/04_Archive/.gitkeep
+!vault/05_Daily/
+!vault/05_Daily/.gitkeep
+!vault/06_Chats/
+!vault/06_Chats/ChatGPT/
+!vault/06_Chats/ChatGPT/.gitkeep
+!vault/06_Chats/Claude/
+!vault/06_Chats/Claude/.gitkeep
+!vault/06_Chats/Gemini/
+!vault/06_Chats/Gemini/.gitkeep
+!vault/07_References/
+!vault/07_References/.gitkeep
+!vault/08_Attachments/
+!vault/08_Attachments/.gitkeep
+!vault/Tags/
+!vault/Tags/.gitkeep
+
+# Templates: track the daily-note template (the rest of the
+# folder is also tracked so users can add their own).
+!vault/Templates/
+!vault/Templates/**
+
+# vault/_meta/  — ChromaDB, SQLite, settings overrides   (ignored)
+# vault/.obsidian/ — per-machine Obsidian config         (ignored)
+# Everything else under vault/ — user notes / attachments (ignored)

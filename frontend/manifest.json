@@ -1,0 +1,11 @@
+{
+  "name": "Second Brain",
+  "short_name": "Brain",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1115",
+  "theme_color": "#0f1115",
+  "description": "Personal knowledge capture — text, voice, images, links."
+}
