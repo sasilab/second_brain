@@ -47,7 +47,7 @@ Between them, an AI pipeline categorises every capture into a PARA-style folder,
 ## Quick start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/second-brain.git
+git clone git clone https://github.com/sasilab/second_brain.git 
 cd second-brain
 
 # Install (uv recommended; falls back to plain venv)
