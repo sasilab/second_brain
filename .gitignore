@@ -82,3 +82,4 @@ vault/**
 # vault/_meta/  — ChromaDB, SQLite, settings overrides   (ignored)
 # vault/.obsidian/ — per-machine Obsidian config         (ignored)
 # Everything else under vault/ — user notes / attachments (ignored)
+SESSION_LOG.md
