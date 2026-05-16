@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime
 from typing import Any, TypedDict
 
@@ -35,6 +36,26 @@ _DATE_FORMATS = (
     "%Y-%m-%d %H:%M:%S",
     "%Y-%m-%d",
 )
+
+
+# Claude's web/desktop export wraps unrenderable content blocks (tool calls,
+# artifacts, computer use, etc.) in a literal triple-backtick fence containing
+# the text "This block is not supported on your current device yet." Obsidian
+# then shows it as a code block — confusing because it looks like Obsidian's
+# own error. Strip it out of any imported text.
+_UNSUPPORTED_BLOCK_RE = re.compile(
+    r"\n*```[ \t]*\n+[ \t]*This block is not supported on your current device yet\.?[ \t]*\n+```[ \t]*",
+    re.IGNORECASE,
+)
+_TRIPLE_NEWLINE_RE = re.compile(r"\n{3,}")
+
+
+def strip_unsupported_blocks(text: str) -> str:
+    """Remove Claude-export placeholder blocks. Collapses the gaps they leave."""
+    if not text or "not supported on your current device" not in text.lower():
+        return text
+    cleaned = _UNSUPPORTED_BLOCK_RE.sub("\n\n", text)
+    return _TRIPLE_NEWLINE_RE.sub("\n\n", cleaned).strip()
 
 
 def parse_date(value: Any) -> datetime | None:

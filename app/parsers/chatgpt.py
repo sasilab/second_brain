@@ -9,7 +9,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.parsers._common import NormalizedConversation, load_json, parse_date
+from app.parsers._common import (
+    NormalizedConversation,
+    load_json,
+    parse_date,
+    strip_unsupported_blocks,
+)
 
 
 def parse(data: bytes | str | list | dict) -> list[NormalizedConversation]:
@@ -57,6 +62,7 @@ def _parse_conversation(conv: dict) -> NormalizedConversation | None:
             continue
         parts = content.get("parts") or []
         text = "\n\n".join(str(p) for p in parts if p).strip()
+        text = strip_unsupported_blocks(text)
         if not text:
             continue
         messages.append({"role": author, "content": text})

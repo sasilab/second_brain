@@ -7,7 +7,12 @@ or a `content` list of typed blocks.
 
 from __future__ import annotations
 
-from app.parsers._common import NormalizedConversation, load_json, parse_date
+from app.parsers._common import (
+    NormalizedConversation,
+    load_json,
+    parse_date,
+    strip_unsupported_blocks,
+)
 
 
 def parse(data: bytes | str | list | dict) -> list[NormalizedConversation]:
@@ -73,6 +78,7 @@ def _parse_conversation(conv: dict) -> NormalizedConversation | None:
         elif not text and isinstance(msg.get("content"), str):
             text = msg["content"].strip()
 
+        text = strip_unsupported_blocks(text)
         if not text:
             continue
         messages.append({"role": role, "content": text})

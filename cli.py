@@ -7,6 +7,8 @@ Usage:
   python cli.py group "<topic>"  Build a Map of Content (MOC) hub note for a topic.
                                  Searches ChromaDB, asks the active LLM to organize
                                  the matches into categories, writes to 01_Projects/.
+  python cli.py clean-chats      Strip "block not supported on your current device"
+                                 placeholders from previously imported chat notes.
   python cli.py status           Show vault path, provider, index size
 """
 
@@ -17,7 +19,7 @@ import logging
 import sys
 
 from app.config import settings
-from app.services import indexer, linker, moc_builder, runtime_settings
+from app.services import chat_importer, indexer, linker, moc_builder, runtime_settings
 from app.services.llm_providers import list_providers
 
 
@@ -85,6 +87,18 @@ def cmd_reindex(args: argparse.Namespace) -> int:
     return 0 if counts["errors"] == 0 else 1
 
 
+def cmd_clean_chats(args: argparse.Namespace) -> int:
+    print(f"Scanning chat notes under: {settings.chats_dir}")
+    counts = chat_importer.clean_existing_chat_notes()
+    print(
+        f"Done. Scanned {counts['scanned']} note(s), cleaned {counts['cleaned']}, "
+        f"errors {counts['errors']}."
+    )
+    if counts["cleaned"]:
+        print("Run `python cli.py reindex` to refresh embeddings for the cleaned notes.")
+    return 0 if counts["errors"] == 0 else 1
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     print(f"Vault:          {settings.vault_root}")
     print(f"Chroma dir:     {settings.chroma_dir}")
@@ -130,6 +144,12 @@ def main(argv: list[str] | None = None) -> int:
         help='Topic description. Comma- and dash-separated terms widen the search.',
     )
     p_group.set_defaults(func=cmd_group)
+
+    p_clean = sub.add_parser(
+        "clean-chats",
+        help='Strip "block not supported" placeholders from imported chat notes',
+    )
+    p_clean.set_defaults(func=cmd_clean_chats)
 
     p_status = sub.add_parser("status", help="Show vault path, provider, index size")
     p_status.set_defaults(func=cmd_status)

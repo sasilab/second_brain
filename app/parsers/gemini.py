@@ -16,7 +16,12 @@ from typing import Any
 
 from bs4 import BeautifulSoup, Tag
 
-from app.parsers._common import NormalizedConversation, load_json, parse_date
+from app.parsers._common import (
+    NormalizedConversation,
+    load_json,
+    parse_date,
+    strip_unsupported_blocks,
+)
 
 
 _USER_ROLES = {"user", "human"}
@@ -106,7 +111,7 @@ def _parse_item(item: dict) -> NormalizedConversation | None:
                 else:
                     parts.append(str(c))
             content = "\n\n".join(p for p in parts if p)
-        content = str(content).strip()
+        content = strip_unsupported_blocks(str(content).strip())
         if not content:
             continue
         messages.append({"role": role, "content": content})

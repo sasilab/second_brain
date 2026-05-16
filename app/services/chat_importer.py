@@ -16,6 +16,7 @@ from typing import Any, Iterator
 from slugify import slugify
 
 from app.config import settings
+from app.parsers._common import strip_unsupported_blocks
 from app.services import browse, indexer, linker, vault
 from app.services.llm_providers import get_active_provider
 
@@ -250,3 +251,57 @@ def _import_one(
         log.warning("Linking failed for chat %s: %s", filename, e)
 
     return "imported"
+
+
+# ---------- post-hoc cleanup ----------
+
+
+def clean_existing_chat_notes() -> dict[str, int]:
+    """Strip 'block not supported' placeholders from already-imported chat notes.
+
+    Walks vault/06_Chats/, rewrites notes whose body changed, and returns counts.
+    Run `cli.py reindex` afterwards to refresh embeddings — the body changed but
+    we don't reindex inline to keep this fast and avoid surprise side effects.
+    """
+    scanned = 0
+    cleaned = 0
+    errors = 0
+
+    chats_root = settings.chats_dir
+    if not chats_root.exists():
+        return {"scanned": 0, "cleaned": 0, "errors": 0}
+
+    for md_path in chats_root.rglob("*.md"):
+        scanned += 1
+        try:
+            meta, body = vault.read_note(md_path)
+        except Exception as e:
+            log.warning("clean_existing_chat_notes read failed for %s: %s", md_path, e)
+            errors += 1
+            continue
+
+        # Cheap skip: if the placeholder text isn't present, nothing to do.
+        if "not supported on your current device" not in (body or "").lower():
+            continue
+
+        new_body = strip_unsupported_blocks(body)
+        if new_body and not new_body.endswith("\n"):
+            new_body += "\n"
+
+        if new_body == body:
+            continue
+
+        try:
+            import frontmatter  # local import — only needed for this rare operation
+
+            post = frontmatter.Post(new_body, **{k: v for k, v in meta.items()})
+            md_path.write_text(frontmatter.dumps(post), encoding="utf-8")
+            cleaned += 1
+        except Exception as e:
+            log.warning("clean_existing_chat_notes write failed for %s: %s", md_path, e)
+            errors += 1
+
+    if cleaned:
+        browse.invalidate_cache()
+
+    return {"scanned": scanned, "cleaned": cleaned, "errors": errors}

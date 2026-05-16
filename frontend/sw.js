@@ -3,13 +3,16 @@
 // API requests always pass through to the network — they're queued in IndexedDB
 // by the app code itself, not by the worker.
 
-const CACHE_NAME = "second-brain-shell-v1";
+const CACHE_NAME = "second-brain-shell-v2";
 const SHELL = [
   "/",
   "/index.html",
   "/css/style.css",
   "/js/app.js",
   "/manifest.json",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (event) => {
